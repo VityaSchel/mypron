@@ -1,5 +1,5 @@
 import React from 'react'
-import { getTorrent, getTorrentsList } from '/lib/parseTools'
+import { getTorrent, getTorrentsList, downloadTorrent } from '/lib/parseTools'
 import { shell } from '@tauri-apps/api'
 import styles from './styles.module.scss'
 import Skeleton from '@mui/material/Skeleton'
@@ -68,7 +68,7 @@ function Item(props) {
   const handlePointerOut = () => { clearTimeout(showPreviewTimeout); setShowPreview(false) }
 
   const handleClick = () => {
-    shell.open(thumbnails.download)
+    downloadTorrent(thumbnails.download)
   }
 
   return (
@@ -77,7 +77,7 @@ function Item(props) {
         {thumbnails.thumbnail
           ? (
             <>
-              {showPreview && <video src={thumbnails.preview} autoplay mute></video>}
+              {showPreview && <video src={thumbnails.preview} autoplay mute loop></video>}
               <img src={thumbnails.thumbnail} alt='Предпросмотр' />
             </>
           ) : <Skeleton variant='rectangular' animation='wave' />

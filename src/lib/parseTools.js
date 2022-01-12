@@ -1,5 +1,6 @@
-import { http } from '@tauri-apps/api'
-import { has as hasCache, get as getCache, set as setCache } from './cache'
+import { http, fs, shell } from '@tauri-apps/api'
+import { cacheDir, has as hasCache, get as getCache, set as setCache } from './cache'
+import { v4 as uuid } from 'uuid'
 
 async function parse(url) {
   const response = await http.fetch(url, { responseType: http.ResponseType.Text })
@@ -35,7 +36,7 @@ function parseTorrent(root) {
   return {
   	thumbnail: prependHttps(findExtension(content, ['png', 'jpg', 'jpeg']) ?? content[1] ?? content[0]),
   	preview: prependHttps(findExtension(content, ['mp4', 'gif']) ?? content[2] ?? content[1] ?? content[0]),
-    download: root.querySelector('.torrent_download_div > a:nth-child(2)').getAttribute('href')
+    download: root.querySelector('.torrent_download_div > a:nth-child(1)').getAttribute('href')
   }
 }
 
@@ -62,4 +63,15 @@ const fetchTorrentsSearchResults = (term, page = 1) => parse(`https://myporn.clu
 
 export async function searchTorrents(term, page) {
   return await parseTorrentsList(await fetchTorrentsSearchResults(term, page))
+}
+
+export async function downloadTorrent(url) {
+  const response = await http.fetch(url, { responseType: http.ResponseType.Binary })
+  const filepath = `${await cacheDir()}/${uuid()}.torrent`
+  await fs.writeBinaryFile({
+    contents: response.data,
+    path: filepath
+  })
+  shell.open(filepath)
+  return true
 }

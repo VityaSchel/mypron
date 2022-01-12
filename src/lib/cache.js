@@ -5,7 +5,7 @@ async function cacheDirPath() {
   return dirPath.endsWith('/') ? dirPath.slice(0, -1) : dirPath
 }
 
-const cacheDir = async () => `${await cacheDirPath()}/com.vityaschel.mypron`
+export const cacheDir = async () => `${await cacheDirPath()}/com.vityaschel.mypron`
 
 export async function has(filename) {
   try {
