@@ -1,23 +1,54 @@
 import React from 'react'
-import { getTorrent, getTorrentsList } from './parseTools'
+import { getTorrent, getTorrentsList } from '/lib/parseTools'
 import { shell } from '@tauri-apps/api'
 import styles from './styles.module.scss'
 import Skeleton from '@mui/material/Skeleton'
+import SearchBox from './SearchBox'
+import Pagination from '@mui/material/Pagination'
 
 export function App(props) {
+  const searchRef = React.useRef()
   const [torrentsList, setTorrentsList] = React.useState([])
+  const [pagination, setPagination] = React.useState({ count: 1, current: 1 })
 
-  const handleClick = async () => {
-    const list = await getTorrentsList()
+  React.useEffect(() => handleLoadHits(1), [])
+  const handleLoadHits = async page => {
+    const { list, pagination } = await getTorrentsList(page)
+    list.type = 'hits'
+    setPagination(pagination)
     setTorrentsList(list)
+  }
+
+  const handleChangePagination = (e, value) => {
+    window.scrollTo(0, 0)
+    setPagination({ ...pagination, current: value })
+    switch(torrentsList.type) {
+      case 'hits':
+        handleLoadHits(value)
+        break
+
+      case 'search':
+        searchRef.current.changePage(value)
+        break
+    }
   }
 
   return (
     <>
+      <SearchBox
+        setTorrentsList={setTorrentsList}
+        setPagination={setPagination}
+        ref={searchRef}
+      />
+      <p>Страница {pagination.current} из {pagination.count}</p>
       <div className={styles.grid}>
-        {torrentsList.map(item => <Item data={item} />)}
+        {torrentsList.map(item => <Item data={item} key={item.id} />)}
       </div>
-      <button onClick={handleClick}>Hello world</button>
+      <Pagination
+        count={pagination.count}
+        page={pagination.current}
+        onChange={handleChangePagination}
+      />
     </>
   )
 }
@@ -25,6 +56,7 @@ export function App(props) {
 function Item(props) {
   const [thumbnails, setThumbnails] = React.useState({})
   const [showPreview, setShowPreview] = React.useState(false)
+  const [showPreviewTimeout, setShowPreviewTimeout] = React.useState()
 
   React.useEffect(() => fetchInfo(), [])
   const fetchInfo = async () => {
@@ -32,15 +64,15 @@ function Item(props) {
     setThumbnails(thumbnailsInfo)
   }
 
-  const handlePointerOver = () => setShowPreview(true)
-  const handlePointerOut = () => setShowPreview(false)
+  const handlePointerOver = () => { setShowPreviewTimeout(setTimeout(() => setShowPreview(true))) }
+  const handlePointerOut = () => { clearTimeout(showPreviewTimeout); setShowPreview(false) }
 
   const handleClick = () => {
     shell.open(thumbnails.download)
   }
 
   return (
-    <div className={styles.item} onClick={handleClick}>
+    <div className={styles.item} onClick={handleClick} data-id={props.data.id}>
       <div className={styles.preview} onPointerOver={handlePointerOver} onPointerOut={handlePointerOut}>
         {thumbnails.thumbnail
           ? (

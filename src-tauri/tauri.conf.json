@@ -53,13 +53,22 @@
         "createDir": true,
         "readBinaryFile": true,
         "writeBinaryFile": true
+      },
+      "http": {
+        "request": true
+      },
+      "shell": {
+        "all": true
+      },
+      "path": {
+        "all": true
       }
     },
     "windows": [
       {
         "title": "MyPron",
-        "width": 800,
-        "height": 600,
+        "width": 1347,
+        "height": 2838,
         "resizable": true,
         "fullscreen": false
       }
