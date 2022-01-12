@@ -1,0 +1,23 @@
+{
+  "name": "mypron",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
+    "@mui/material": "^5.2.8",
+    "@tauri-apps/api": "^1.0.0-beta.8",
+    "preact": "^10.5.15",
+    "sass": "^1.47.0"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.1.5",
+    "@tauri-apps/cli": "^1.0.0-beta.10",
+    "vite": "^2.7.2"
+  }
+}
