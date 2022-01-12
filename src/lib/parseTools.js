@@ -28,13 +28,28 @@ function parseTorrentsList(root) {
   }
 }
 
-function parseTorrent(root) {
+async function parseTorrent(root) {
   let content = root.querySelector('.torrent_links').getAttribute('data-content')
   content = JSON.parse(content.replaceAll('\\', ''))
   const prependHttps = url => url?.startsWith('https:') ? url : `https:${url}`
   const findExtension = (array, extensions) => array.find(url => extensions.some(ending => url.endsWith(ending)))
+
+  let thumbnail = prependHttps(findExtension(content, ['png', 'jpg', 'jpeg']) ?? content[1] ?? content[0])
+  if(thumbnail.endsWith('.html')) {
+    const imageHoster = new URL(thumbnail).hostname
+    const allowedHosters = ['adultphotosets.best']
+    if(allowedHosters.includes(imageHoster)) {
+      const thumbnailHTML = await parse(thumbnail)
+      switch(imageHoster) {
+        case 'adultphotosets.best':
+          thumbnail = `https://adultphotosets.best${thumbnailHTML.querySelector('#content img').getAttribute('src')}`
+          break
+      }
+    }
+  }
+
   return {
-  	thumbnail: prependHttps(findExtension(content, ['png', 'jpg', 'jpeg']) ?? content[1] ?? content[0]),
+  	thumbnail: thumbnail,
   	preview: prependHttps(findExtension(content, ['mp4', 'gif']) ?? content[2] ?? content[1] ?? content[0]),
     download: root.querySelector('.torrent_download_div > a:nth-child(1)').getAttribute('href')
   }
