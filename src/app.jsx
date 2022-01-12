@@ -1,5 +1,6 @@
 import React from 'react'
-import { getTorrentsList } from './parseTools'
+import { getTorrent, getTorrentsList } from './parseTools'
+import { shell } from '@tauri-apps/api'
 import styles from './styles.module.scss'
 import Skeleton from '@mui/material/Skeleton'
 
@@ -22,32 +23,35 @@ export function App(props) {
 }
 
 function Item(props) {
-  const parseHashtags = text => (
-    <>
-      {
-        text.split(' ').map(
-          text => text[0] === '#'
-            ? <span className={styles.hastag}>{text}</span>
-            : text
-        ).reduce(
-          (prev, word) => typeof word === 'string'
-            ? prev.slice(0, -1).concat(
-                prev[prev.length - 1]
-                  ? `${prev[prev.length - 1]} ${word}`
-                  : word
-              )
-            : prev.concat(word)
-        , [])
-      }
-    </>
-  )
+  const [thumbnails, setThumbnails] = React.useState({})
+  const [showPreview, setShowPreview] = React.useState(false)
+
+  React.useEffect(() => fetchInfo(), [])
+  const fetchInfo = async () => {
+    const thumbnailsInfo = await getTorrent(props.data.id)
+    setThumbnails(thumbnailsInfo)
+  }
+
+  const handlePointerOver = () => setShowPreview(true)
+  const handlePointerOut = () => setShowPreview(false)
+
+  const handleClick = () => {
+    shell.open(thumbnails.download)
+  }
 
   return (
-    <div className={styles.item}>
-      <div className={styles.preview}>
-        <Skeleton variant='rectangular' animation='wave' />
+    <div className={styles.item} onClick={handleClick}>
+      <div className={styles.preview} onPointerOver={handlePointerOver} onPointerOut={handlePointerOut}>
+        {thumbnails.thumbnail
+          ? (
+            <>
+              {showPreview && <video src={thumbnails.preview} autoplay mute></video>}
+              <img src={thumbnails.thumbnail} alt='Предпросмотр' />
+            </>
+          ) : <Skeleton variant='rectangular' animation='wave' />
+        }
       </div>
-      <span className={styles.title}>{parseHashtags(props.data.title)}</span>
+      <span className={styles.title}>{props.data.title.replaceAll(/#[^ #]+/g, '')}</span>
       <div className={styles.info}>
         <div className={styles.fileInfo}>
           <span className={styles.downloaders}>
