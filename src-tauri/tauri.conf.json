@@ -52,7 +52,8 @@
       "fs": {
         "createDir": true,
         "readBinaryFile": true,
-        "writeBinaryFile": true
+        "writeBinaryFile": true,
+        "removeFile": true
       },
       "http": {
         "request": true

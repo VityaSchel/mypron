@@ -1,6 +1,8 @@
 import React from 'react'
 import { getTorrent, getTorrentsList, downloadTorrent } from '/lib/parseTools'
+import { remove } from '/lib/cache'
 import { shell } from '@tauri-apps/api'
+import { listen } from '@tauri-apps/api/event'
 import styles from './styles.module.scss'
 import Skeleton from '@mui/material/Skeleton'
 import SearchBox from './SearchBox'
@@ -32,6 +34,16 @@ export function App(props) {
         break
     }
   }
+
+  React.useEffect(() => {
+    let unlisten = () => {}
+    (async () => {
+      unlisten = await listen('clearPageCache', event => {
+        torrentsList.map(({ id }) => id).forEach(id => remove(`torrent_${id}`))
+      })
+    })()
+    return () => unlisten()
+  }, [torrentsList])
 
   return (
     <>

@@ -3,7 +3,7 @@
   windows_subsystem = "windows"
 )]
 
-use tauri::{Menu, MenuItem, Submenu};
+use tauri::{Menu, CustomMenuItem, MenuItem, Submenu};
 
 fn main() {
     let about_menu = Submenu::new("MyPron", Menu::new()
@@ -29,7 +29,8 @@ fn main() {
       .add_native_item(MenuItem::Minimize)
       .add_native_item(MenuItem::Zoom));
 
-    let help_menu = Submenu::new("Help", Menu::new());
+    let help_menu = Submenu::new("Help", Menu::new()
+      .add_item(CustomMenuItem::new("clearPageCache", "Очистить кеш страницы")));
 
     let menu = Menu::new()
       .add_submenu(about_menu)
@@ -40,6 +41,14 @@ fn main() {
 
     tauri::Builder::default()
         .menu(menu)
+        .on_menu_event(|event| {
+          match event.menu_item_id() {
+            "clearPageCache" => {
+              event.window().emit("clearPageCache", {}).unwrap();
+            }
+            _ => {}
+          }
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

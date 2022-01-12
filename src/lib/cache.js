@@ -29,6 +29,12 @@ export async function set(filename, data) {
   return true
 }
 
+export async function remove(filename) {
+  const cacheDirectory = await cacheDir()
+  await fs.removeFile(`${cacheDirectory}/${filename}`)
+  return true
+}
+
 export async function get(filename) {
   const binaryBuffer = await fs.readBinaryFile(`${await cacheDir()}/${filename}`)
   const rawContent = new TextDecoder().decode(new Uint8Array(binaryBuffer))
