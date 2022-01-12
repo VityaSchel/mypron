@@ -2,6 +2,8 @@
 
 This is my first app made with [Tauri](https://tauri.studio/) and Rust. It allows you to browse popular website with adult content, supports search, and has Material Design made with MUI and React.
 
+![image](https://user-images.githubusercontent.com/59040542/149215766-996d640e-61be-4215-a5c3-12a992141286.png)
+
 It also supports caching using fs module of Tauri and temporal downloading of .torrent files.
 
 ## ⚠️ APP IS FOR DEMONSTRATIONAL PURPOSES ONLY ⚠️
